@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of KTP Model -->
+<model name="ktp:cms_model" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+	<!-- Optional meta-data about the model -->
+	<description>KTP Content Model</description>	
+	<version>1.0</version>	
+	<imports>		
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>		
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>		
+	</imports>	
+	<namespaces>		
+		<namespace uri="http:/www.kaptest.com/model/content/1.0" prefix="ktp"/>		
+	</namespaces>
+	<constraints></constraints>
+	<types>
+		<!-- Generic document type -->
+		<type name="ktp:kaptestContent">
+			<title>Kaptest Asset</title>
+			<parent>cm:content</parent>	
+			<properties>
+				<property name="ktp:id">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>								
+			</properties>
+			<mandatory-aspects>
+            	<aspect>ktp:versionable</aspect>
+         	</mandatory-aspects>	
+		</type>		
+	</types>	
+	<aspects>
+		<aspect name="ktp:versionable">
+			<title>KTP Versionable</title>
+			<parent>cm:versionable</parent>
+			<properties></properties>
+			<overrides>
+				<property name="cm:autoVersionOnUpdateProps">
+					<default>false</default>
+				</property>
+			</overrides>					
+		</aspect>
+		<aspect name="ktp:isEdited">
+			<title>Is Edited</title>
+			<properties></properties>		
+		</aspect>		
+		<aspect name="ktp:isReadyToQA">
+			<title>Is Ready to QA</title>
+			<properties></properties>		
+		</aspect>
+		<aspect name="ktp:isReadyToPublish">
+			<title>Is Ready to Publish</title>
+			<properties></properties>		
+		</aspect>
+		<aspect name="ktp:isPublished">
+			<title>Is Published</title>
+			<properties>
+				<property name="ktp:workflowID">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>				
+				<property name="ktp:version">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="ktp:publishedDate">
+					<type>d:datetime</type>
+					<mandatory>false</mandatory>
+				</property>	
+			</properties>			
+		</aspect>				
+	</aspects>		
+</model>

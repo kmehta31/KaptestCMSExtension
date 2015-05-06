@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/share/alfresco-share-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-core-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-data-model-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-deployment-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-enterprise-remote-api-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-enterprise-repo-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-jlan-embed-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-jndi-client-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-mbeans-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-remote-api-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-repository-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-web-client-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/alfresco-web-framework-commons-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/remote/alfresco-web-service-client-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Alfrescokaptest413/tomcat/webapps/alfresco/WEB-INF/lib/jbpm-identity-3.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Alfrescokaptest413/tomcat/webapps/alfresco/WEB-INF/lib/jbpm-jpdl-3.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Alfrescokaptest413/tomcat/webapps/alfresco/WEB-INF/lib/org.springframework.core-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="C:/Alfrescokaptest413/tomcat/webapps/alfresco/WEB-INF/lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="C:/Alfrescokaptest413/tomcat/webapps/alfresco/WEB-INF/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/dependencies/acegi-security-0.8.2_patched.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/dependencies/jta.jar"/>
+	<classpathentry kind="lib" path="C:/alfresco-enterprise-sdk-4.1.3/lib/server/dependencies/jtds-1.2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpclient-4.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpcore-4.1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpclient-cache-4.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpclient-4.2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpclient-cache-4.2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Alfresco4233/tomcat/webapps/alfresco/WEB-INF/lib/httpcore-4.2.4.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

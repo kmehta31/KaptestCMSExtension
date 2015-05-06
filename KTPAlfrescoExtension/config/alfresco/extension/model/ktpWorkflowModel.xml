@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="ktpwf:workflowmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">	
+	<description>Kaptest Workflow Model</description>	
+	<version>1.0</version>
+
+	<!-- Imports are required to allow references to definitions in other models -->
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<import uri="http://www.alfresco.org/model/bpm/1.0"	prefix="bpm" />
+	</imports>
+
+	<!-- Introduction of new namespaces defined by this model -->
+	<namespaces>
+		<namespace uri="http:/www.kaptest.com/model/workflow/1.0" prefix="ktpwf"/>
+	</namespaces>
+
+	<types>	
+		<type name="ktpwf:submitReviewTask">
+			<parent>bpm:startTask</parent>			
+		</type>
+
+		<type name="ktpwf:review">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageItemActionGroup">
+					<default>read_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>	
+		
+		<type name="ktpwf:revise">
+			<parent>bpm:workflowTask</parent>
+			<overrides>
+				<property name="bpm:packageActionGroup">  					
+ 					<default>add_package_item_actions</default>
+				</property>
+				<property name="bpm:packageItemActionGroup">
+					<default>edit_and_remove_package_item_actions</default>
+				</property>
+			</overrides>
+		</type>		
+	</types>	
+</model>
+

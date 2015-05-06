@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.1" name="ktpwf:publish">
+	<swimlane name="initiator" />
+
+	<swimlane name="editors">
+		<assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+			<pooledactors>#{people.getGroup('GROUP_editors')}</pooledactors>
+		</assignment>
+	</swimlane>
+	
+	<swimlane name="reviewers">		
+		<assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+			<pooledactors>#{people.getGroup('GROUP_reviewers')}</pooledactors>
+		</assignment>
+	</swimlane>
+
+	<start-state name="start">
+		<task name="ktpwf:submitReviewTask" swimlane="initiator" />			
+		<transition name="review" to="submitToQA"/>
+		<transition name="abort" to="end1">
+			<action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">        		
+            	<script>
+            		for (var i = 0, child = null, l = bpm_package.children.length; l > i; i++){
+               			child = bpm_package.children[i];               			
+               			if (!child.hasAspect("ktp:isEdited")){
+               				child.addAspect("ktp:isEdited");
+               			}               			
+               			child.save();                 		
+               		}
+            	</script>
+         	</action>
+		</transition>		
+	</start-state>
+   
+	<node name="submitToQA">
+		<event type="node-enter">
+			<script>
+				<variable name="publishTarget" access="read,write" />
+				<expression>
+					publishTarget = "FSTR_QA";
+				</expression>				
+			</script>
+		</event>		
+		<transition name="" to="submitToQAStatus">
+        	<action class="com.kaptest.workflow.action.PublishContent"/>       	
+    	</transition>
+	</node>
+	
+	<decision name="submitToQAStatus">
+		<transition name="reject" to="reviseQA"></transition>
+		<transition name="" to="submitToProd">
+			<condition>#{publishQAStatus == "success"}</condition>
+		</transition>
+	</decision>
+
+	<task-node name="submitToProd">
+		<task name="ktpwf:review" swimlane="reviewers" />
+		<transition name="aprove" to="approved"/>		
+		<transition name="reject" to="reviseQA"/>
+	</task-node>
+	
+	<node name="approved">
+		<event type="node-enter">
+			<script>
+				<variable name="publishTarget" access="read,write" />				
+				<expression>
+					publishTarget = "FSTR_PROD";
+				</expression>
+			</script>
+		</event>
+		<transition name="" to="submitToProdStatus">
+        	<action class="com.kaptest.workflow.action.PublishContent"/>       	
+    	</transition>    			
+	</node>
+	
+	<decision name="submitToProdStatus">		
+		<transition name="" to="end1">
+			<condition>#{publishPRODStatus == "success"}</condition>
+		</transition>
+	</decision>
+   
+	<task-node name="reviseQA">
+		<task name="ktpwf:revise" swimlane="initiator"></task>
+		<transition name="submit" to="submitToQA"/>		
+		<transition name="abort" to="abortAfterQADeployment"/>		
+	</task-node>
+	
+	<node name="abortAfterQADeployment">
+		<event type="node-enter">
+			<script>
+				<variable name="publishTarget" access="read,write" />				
+				<expression>
+					publishTarget = "ABORT_POSTQADEPLOY";
+				</expression>
+			</script>
+		</event>
+		<transition name="" to="end1">
+        	<action class="com.kaptest.workflow.action.PublishContent"/>       	
+    	</transition>    			
+	</node>
+	
+	<end-state name="end1">
+	</end-state>   
+</process-definition>

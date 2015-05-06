@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="kaptest alfresco Extensions" default="deploy-dev" basedir=".">
+	<property file="build.properties" />
+	<property name="label" value="ch2" />
+	<property name="project.dir" value="." />
+	<property name="build.dir" value="${project.dir}/build" />
+	<property name="bin.dir" value="${project.dir}/bin" />
+	<property name="project.name" value="kaptest-alfresco-Extensions" />
+	<property name="package.file.zip" value="${build.dir}/${project.name}.zip" />
+	<property name="web-extension.file.zip" value="${build.dir}/${project.name}-webextension.zip" />
+	<property name="package.file.jar" value="${build.dir}/${project.name}.jar" />
+	<property name="project.file.zip" value="${build.dir}/${project.name}-project-${label}.zip" />
+    <property name="package.file.amp" value="${build.dir}/${project.name}.amp" />
+	<property name="source.dir" value="${project.dir}/java" />
+	<property name="config.dir" value="${project.dir}/config" />
+	<property name="data.dir" value="${project.dir}/data" />
+	<property name="web.dir" value="${project.dir}/web" />	
+	<property name="extension.dir" value="/alfresco/extension" />
+	<property name="web-extension.dir" value="/alfresco/web-extension" />	
+	<property name="templates.dir" value="/alfresco/templates" />
+	<path id="classpath.server">
+		<fileset dir="${alfresco.sdk.dir}/server" includes="**/*.jar" />
+	</path>
+
+	<path id="classpath.remote">
+		<fileset dir="${alfresco.sdk.dir}/remote" includes="**/*.jar" />
+	</path>	
+
+	<path id="classpath.build">
+	    <fileset dir="${classpath.lib.dir}" includes="**/*.jar" />
+    </path>
+    
+	<target name="clean" description="Removes all generated files">
+		<delete dir="${build.dir}" />
+		<delete dir="${bin.dir}" />		
+	</target>
+
+	<target name="clean-tomcat" description="Removes deployed extension directory, lib/someco*.jar, and someco/" >
+		<delete dir="${alfresco.web.dir}/WEB-INF/classes/alfresco/extension" />
+		<delete dir="${alfresco.web.dir}/WEB-INF/classes/alfresco/module" />
+		<delete dir="${alfresco.web.dir}/jsp/extension" />
+		<delete dir="${alfresco.web.dir}/hesser" />
+		<delete file="${alfresco.web.dir}/WEB-INF/lib/hesser-alfresco.jar" />
+	</target>
+	
+	<target name="copy-libs" description="Copy all jar files to tomcat" >
+	  <copy todir="${tomcat.lib.dir}">
+		<fileset dir="${project.dir}/lib"/>
+	  </copy>
+	</target>
+
+	<target name="setup" description="Creates the ${build.dir} and ${bin.dir} directories">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${bin.dir}" />		
+	</target>
+
+	<target name="package-extension" depends="setup, copy-libs, package-jar" description="Creates a zip called ${package.file.zip} which can be unzipped on top of an exploded Alfresco web app">
+		<delete file="${package.file.zip}" />
+		<zip destfile="${package.file.zip}" update="true">
+			<zipfileset dir="${config.dir}${extension.dir}" prefix="WEB-INF/classes${extension.dir}" />			
+			<zipfileset file="${package.file.jar}" prefix="WEB-INF/lib" />
+			<zipfileset dir="${web.dir}" excludes="META-INF/**" />
+		</zip>
+	</target>
+	
+	<target name="package-web-extension" depends="" description="Creates a zip called ${package.file.zip} which can be unzipped on top of an exploded Alfresco web app">
+			<delete file="${web-extension.file.zip}" />
+			<zip destfile="${web-extension.file.zip}" update="true">				
+				<zipfileset dir="${config.dir}${web-extension.dir}" prefix="" />				
+			</zip>
+		</target>
+
+	<target name="deploy-dev" depends="config-dev, package-extension, package-web-extension" description="Unzips the ${package.file.zip} into ${alfresco.web.dir}">
+		<unzip src="${package.file.zip}" dest="${alfresco.web.dir}" />
+		<unzip src="${web-extension.file.zip}" dest="${alfresco.webextension.dir}" />
+	</target>	
+	
+	<target name="config-dev"></target>
+	
+	<target name="zip-project" depends="setup" description="Zips the entire Eclipse project as-is into ${project.file.zip}">
+		<delete file="${project.file.zip}" />
+		<zip destfile="${project.file.zip}">
+			<zipfileset dir="${project.dir}" excludes="build/** bin/**" prefix="${project.name}-${label}" />
+		</zip>
+	</target>	
+
+	<target name="compile" description="Compiles src to ${bin.dir}">
+		<mkdir dir="${bin.dir}" />
+		<javac srcdir="${source.dir}" destdir="${bin.dir}" source="1.6" target="1.6" debug="on" fork="yes" deprecation="on">
+			<classpath refid="classpath.server"/>
+			<classpath refid="classpath.remote"/>
+			<classpath refid="classpath.build"/>
+		</javac>
+		<!-- copy in non-compiled files like props if needed -->
+		<copy todir="${bin.dir}">
+			<fileset dir="${source.dir}" excludes="**/*.java"/>			
+		</copy>
+	</target>
+	
+	<target name="package-jar" depends="setup, compile"
+		description="Jars up the compiled classes and ${web.dir}/META-INF into ${package.file.jar}">
+			<delete file="${package.file.jar}" />
+			<jar destfile="${package.file.jar}">
+				<fileset dir="${bin.dir}" includes="com/**" />
+				<fileset dir="${bin.dir}" includes="org/**" />
+					<zipfileset dir="${web.dir}/META-INF" excludes="*.zip" prefix="META-INF" />				
+			</jar>
+	</target>
+	
+</project>

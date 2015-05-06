@@ -1,0 +1,76 @@
+<alfresco-config>		
+	<config evaluator="aspect-name" condition="ktp:isPublished">
+		<property-sheet>
+			<show-property name="ktp:workflowID" display-label-id="workflowid_props" />
+			<show-property name="ktp:version" display-label-id="version_props"/>
+			<show-property name="ktp:publishedDate" display-label-id="publisheddate_props"/>
+		</property-sheet>
+	</config>
+	
+
+	<!-- show related documents association on doc property sheet -->
+	<config evaluator="node-type" condition="ktp:kaptestContent">
+		<property-sheet>
+			<show-property name="ktp:id" display-label-id="id_props" />
+		</property-sheet>
+	</config>
+
+			
+	<!--  add someco types to add content list -->
+	<config evaluator="string-compare" condition="Content Wizards">
+		<content-types>
+			<type name="ktp:kaptestContent" />			
+		</content-types>
+	</config>
+
+	<config evaluator="string-compare" condition="Action Wizards">
+	    <!-- The list of aspects to show in the add/remove features action -->
+    	<!-- and the has-aspect condition -->	
+		<aspects>
+			<aspect name="ktp:isPublished"/>
+			<aspect name="ktp:isEdited"/>			
+		</aspects>
+
+		<!-- The list of types shown in the is-subtype condition -->
+		<subtypes>
+			<type name="ktp:kaptestContent" />			
+		</subtypes>		
+
+		<!-- The list of content and/or folder types shown in the specialise-type action -->
+		<specialise-types>
+			<type name="ktp:kaptestContent" />			
+		</specialise-types>		
+	</config>	
+	
+	<config evaluator="string-compare" condition="Advanced Search">
+		<advanced-search>
+			<content-types>
+				<type name="ktp:kaptestContent" />				
+			</content-types>			
+		</advanced-search>
+	</config>
+	
+	<!--  workflow property sheets -->
+	<config evaluator="node-type" condition="ktpwf:submitReviewTask" replace="true">
+		<property-sheet>
+			<separator name="sep1" display-label-id="general" component-generator="HeaderSeparatorGenerator" />
+			<show-property name="bpm:workflowDescription" component-generator="TextAreaGenerator" />
+		</property-sheet>
+	</config>
+
+	<config evaluator="node-type" condition="ktpwf:review" replace="true">
+		<property-sheet>
+			<separator name="sep1" display-label-id="general" component-generator="HeaderSeparatorGenerator" />
+			<show-property name="bpm:description" component-generator="TextAreaGenerator" read-only="true"/>
+			<show-property name="bpm:comment" component-generator="TextAreaGenerator" />		
+		</property-sheet>
+	</config>	
+
+	<config evaluator="node-type" condition="ktpwf:revise" replace="true">
+		<property-sheet>
+			<separator name="sep1" display-label-id="general" component-generator="HeaderSeparatorGenerator" />
+			<show-property name="bpm:description" component-generator="TextAreaGenerator" read-only="true"/>
+			<show-property name="bpm:comment" component-generator="TextAreaGenerator" />		
+		</property-sheet>
+	</config>	
+</alfresco-config>

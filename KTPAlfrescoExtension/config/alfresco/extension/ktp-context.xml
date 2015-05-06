@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+	<bean id="ktpMessageBundle" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
+        <property name="resourceBundles">
+            <list>
+                <value>alfresco.extension.ktp</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- Registration of new models -->
+    <bean id="ktp.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/extension/model/ktpModel.xml</value>
+                <value>alfresco/extension/model/ktpWorkflowModel.xml</value>
+            </list>
+        </property>
+    </bean>  
+	
+	<bean id="share-start-publish-to-qa" parent="script">
+    	<property name="scriptLocation">
+    		<bean class="org.alfresco.repo.jscript.ClasspathScriptLocation">
+            	<constructor-arg>
+                	<value>alfresco/extension/scripts/start_publish_to_qa_wf.js</value>
+            	</constructor-arg>
+        	</bean>
+    	</property>
+	</bean>
+    
+    <!-- Registration of Workflow Process Model & related resource bundles -->
+	<bean id="extension.workflowBootstrap" parent="workflowDeployer">
+    	<property name="workflowDefinitions">
+			<list>
+				<props>
+					<prop key="engineId">jbpm</prop>
+					<prop key="location">alfresco/extension/workflows/publish-to-qa/processdefinition.xml</prop>
+					<prop key="mimetype">text/xml</prop>
+					<prop key="redeploy">true</prop>
+				</props>
+			</list>
+		</property>
+        <property name="labels">
+                <list>
+                <value>alfresco.extension.kaptestWorkflow</value>
+            </list>
+        </property>
+    </bean>   
+   	
+   	<bean id="delete_expired_content" class="com.kaptest.action.DeleteExpiredContentActionExecutor" parent="action-executer">  		
+   		<property name="nodeService" ref="NodeService" />	
+   	</bean>
+   	
+    <bean id="startPublishWorkflow" class="com.kaptest.action.StartPublishWorkflowActionExecutor" parent="action-executer">    	
+   		<property name="searchService" ref="SearchService" />
+   		<property name="workflowService" ref="WorkflowService" />   		
+   		<property name="nodeService" ref="NodeService" />
+   		<property name="authenticationService" ref="authenticationService"/>   		
+   	</bean>
+    
+    <bean id="transferToQA" class="com.kaptest.action.TransferToQAActionExecutor" parent="action-executer">
+    	<property name="serviceRegistry" ref="ServiceRegistry" />
+   		<property name="transferService" ref="TransferService2" />
+   		<property name="nodeCrawlerFactory" ref="NodeCrawlerFactory" />
+   		<property name="nodeService" ref="NodeService" />   		
+   	</bean>   
+   	<bean id="transferAllToQA" class="com.kaptest.action.TransferAllToQAActionExecutor" parent="action-executer">
+    	<property name="serviceRegistry" ref="ServiceRegistry" />
+   		<property name="transferService" ref="TransferService2" />
+   		<property name="nodeCrawlerFactory" ref="NodeCrawlerFactory" />
+   		<property name="nodeService" ref="NodeService" />   		
+   	</bean> 
+   	<bean id="transferAllToPROD" class="com.kaptest.action.TransferAllToProdActionExecutor" parent="action-executer">
+    	<property name="serviceRegistry" ref="ServiceRegistry" />
+   		<property name="transferService" ref="TransferService2" />
+   		<property name="nodeCrawlerFactory" ref="NodeCrawlerFactory" />
+   		<property name="nodeService" ref="NodeService" />   		
+   	</bean>   
+</beans>

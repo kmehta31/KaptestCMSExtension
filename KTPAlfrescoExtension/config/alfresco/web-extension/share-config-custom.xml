@@ -1,0 +1,201 @@
+<alfresco-config>
+	<!-- Repository Library config section -->
+	<config evaluator="string-compare" condition="RepositoryLibrary" replace="true">
+		<!--
+			Whether the link to the Repository Library appears in the header component or not.
+		-->
+		<visible>true</visible>
+	</config>	
+	<!-- Document Library config section -->
+	<config evaluator="string-compare" condition="DocumentLibrary"> 		
+		<aspects>
+			<!-- Aspects that a user can see -->
+			<visible>			
+				<aspect name="ktp:isEdited"/>
+				<aspect name="ktp:isPublished"/>				
+			</visible>
+			<!-- Aspects that a user can add. Same as "visible" if left empty -->
+			<addable>								
+			</addable>
+			<!-- Aspects that a user can remove. Same as "visible" if left empty-->
+			<removeable>								
+			</removeable>
+		</aspects>	
+		<types>
+	      	<type name="cm:content">				
+				<subtype name="ktp:kaptestContent"/>	
+            </type>    		
+			<type name="cm:folder"/>				
+			<type name="ktp:kaptestContent"/>
+		</types>	
+	</config>   	
+	<config replace="true" evaluator="string-compare" condition="AdvancedSearch">
+		<advanced-search>
+			<!-- Forms for the advanced search type list -->
+			<forms>            
+				<form labelId="search.form.label.cm_content" descriptionId="search.form.desc.cm_content">cm:content</form>
+				<form labelId="search.form.label.cm_folder" descriptionId="search.form.desc.cm_folder">cm:folder</form>            				
+				<form labelId="type.ktp_kaptestContent" descriptionId="search.form.desc.ktp_kaptestContent">ktp:kaptestContent</form>
+			</forms>
+		</advanced-search>
+	</config>
+	<config evaluator="string-compare" condition="Search"> 
+     	<search> 
+         	<!-- default minimum length for search terms --> 
+         	<min-search-term-length>1</min-search-term-length>
+         	<!-- default maximum number of results for a search --> 
+         	<max-search-results>5000</max-search-results> 
+       		<!-- Repository search configuration option --> 
+         	<repository-search>always</repository-search> 
+     	</search> 
+     </config>
+	<!-- ktp:kaptestContent type (existing nodes) -->
+	<config evaluator="node-type" condition="ktp:kaptestContent">
+		<forms>			
+			<form>
+				<field-visibility>
+					<show id="cm:name"/>
+					<show id="cm:title" force="true" />
+					<show id="cm:description"/>
+					<show id="cm:content" force="true"/>
+					<show id="mimetype"/>
+					<show id="cm:author"/>
+					<show id="size"/>
+					<show id="cm:creator" for-mode="view"/>
+					<show id="cm:created" for-mode="view"/>
+					<show id="cm:modifier" for-mode="view"/>
+					<show id="cm:modified" for-mode="view"/>					
+					<show id="ktp:id"/>					
+					<!-- tags and categories -->
+					<show id="cm:taggable" force="true"/>
+					<show id="cm:categories" force="true"/>	
+				</field-visibility>	
+				<appearance>
+					<field id="cm:description">
+						<control>
+							<control-param name="activateLinks">true</control-param>
+						</control>
+					</field>					
+					<field id="mimetype">
+						<control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+					</field>
+					<field id="size">
+						<control template="/org/alfresco/components/form/controls/size.ftl" />
+					</field>
+					<field id="ktp:id" label-id="prop.ktp_id"/>	
+					<field id="cm:taggable">
+						<control>
+							<control-param name="compactMode">true</control-param>
+							<control-param name="params">aspect=cm:taggable</control-param>
+							<control-param name="createNewItemUri">/api/tag/workspace/SpacesStore</control-param>
+							<control-param name="createNewItemIcon">tag</control-param>
+						</control>
+					</field>		
+					<field id="cm:categories">
+						<control>
+							<control-param name="compactMode">true</control-param>
+						</control>
+					</field>	
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:title" force="true"/>
+					<show id="cm:description"/>
+					<show id="cm:content"/>
+					<show id="mimetype"/>
+					<show id="cm:author"/>
+					<show id="size"/>										
+					<show id="ktp:id"/>
+					<show id="cm:taggable" force="true"/>
+					<show id="cm:categories" force="true" />	
+				</field-visibility>
+				<appearance>
+					<field id="cm:title">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:content"/>										
+					<field id="ktp:id" label-id="prop.ktp_id" />										
+				</appearance>
+			</form>			
+		</forms>
+	</config>
+	<config evaluator="aspect" condition="ktp:isPublished">
+		<forms>
+			<form>
+				<field-visibility>					
+					<show id="ktp:workflowID" for-mode="view" force="true"/>	
+					<show id="ktp:version" for-mode="view" force="true"/>	
+					<show id="ktp:publishedDate" for-mode="view" force="true"/>													
+				</field-visibility>
+				<appearance>
+					<set id="isPublishedSet" appearance="title" label="isPublished Aspect" />
+					<field id="ktp:workflowID" set="isPublishedSet" label-id="prop.ktp_workflowID"/>
+					<field id="ktp:version" set="isPublishedSet" label-id="prop.ktp_version"/>
+					<field id="ktp:publishedDate" set="isPublishedSet" label-id="prop.ktp_publishedDate"/>								
+				</appearance>
+			</form>
+		</forms>
+	</config>	
+	
+	<config evaluator="string-compare" condition="DocLibActions">
+		<actions>
+			<action id="start-publish-workflow" type="javascript" label="actions.ktp.start-publish-wf-label" icon="document-publish">
+            	<param name="function">onActionSimpleRepoAction</param>
+            	<permissions>
+                	<permission allow="true">Write</permission>
+            	</permissions>
+            	<param name="action">startPublishWorkflow</param>
+            	<param name="successMessage">message.wf.status.success</param>
+            	<param name="failureMessage">message.wf.status.failure</param>
+       	 	</action>
+       	</actions>
+       	<actionGroups>
+        	<actionGroup id="document-browse">
+            	<action index="500" id="start-publish-workflow" />            	              
+        	</actionGroup>
+        	<actionGroup id="document-details">
+            	<action index="500" id="start-publish-workflow" />            	                
+        	</actionGroup>
+    	</actionGroups> 
+	</config>
+	
+	<config evaluator="string-compare" condition="Remote">
+		<remote>
+			<endpoint>
+				<id>alfresco-noauth</id>
+				<name>Alfresco - unauthenticated access</name>
+				<description>Access to Alfresco Repository WebScripts that do not require authentication</description>
+				<connector-id>alfresco</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<identity>none</identity>
+			</endpoint>
+			<endpoint>
+				<id>alfresco</id>
+				<name>Alfresco - user access</name>
+				<description>Access to Alfresco Repository WebScripts that require user authentication</description>
+				<connector-id>alfresco</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<identity>user</identity>
+			</endpoint>
+			<endpoint>
+				<id>alfresco-feed</id>
+				<name>Alfresco Feed</name>
+				<description>Alfresco Feed - supports basic HTTP authentication via the EndPointProxyServlet</description>
+				<connector-id>http</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<basic-auth>true</basic-auth>
+				<identity>user</identity>
+			</endpoint>         
+			 <endpoint>
+				<id>activiti-admin</id>
+				<name>Activiti Admin UI - user access</name>
+				<description>Access to Activiti Admin UI, that requires user authentication</description>
+				<connector-id>activiti-admin-connector</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/activiti-admin</endpoint-url>
+				<identity>user</identity>
+			 </endpoint>
+		</remote>
+	</config>	
+</alfresco-config>
