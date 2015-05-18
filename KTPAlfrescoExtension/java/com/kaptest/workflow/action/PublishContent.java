@@ -93,25 +93,26 @@ public class PublishContent extends JBPMSpringActionHandler{
 				if(nodesInTree.size()>0){
 					if(target.equalsIgnoreCase("ABORT_POSTQADEPLOY")){
 						System.out.println("Get Working copy & Cancel CHeckout on Abort");
-		            	FileFolderService fileFolderService = serviceRegistry.getFileFolderService();
-		            	int intSetSize = nodesInTree.size();
+						
+						/** Cancel checkout as System user*/
+						final Set<NodeRef> treeNodes = nodesInTree;						
+						AuthenticationUtil.runAs(new RunAsWork<String>() {
+				            public String doWork() throws Exception {
+				            	AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
+				            	String message = cancelCheckoutNodes(treeNodes);
+				            	System.out.println("Status message from cancelCheckout:"+message);
+				            	return message;
+				            }
+				        }, AuthenticationUtil.getSystemUserName());	
+						
+						
+						/** Add isEdited Aspect back for all items with normal user*/
 		            	for(NodeRef nodeRef : nodesInTree){			            	
 			            	if(!nodeService.hasAspect(nodeRef, KaptestModel.ASPECT_IS_EDITED)){			            		
 			            		Map<QName,Serializable> propMap = new HashMap<QName,Serializable>();
 								nodeService.addAspect(nodeRef, KaptestModel.ASPECT_IS_EDITED, propMap);	
 								System.out.println("Aspect isEdited added to the content successful");
-							}
-			            	if(intSetSize < 51){
-				            	if(fileFolderService.getFileInfo(nodeRef).isFolder() == false){          	
-					            	NodeRef workingCopy = checkOutCheckInService.getWorkingCopy(nodeRef);
-					            	if(workingCopy!=null){
-						            	checkOutCheckInService.cancelCheckout(workingCopy);
-						            	System.out.println("Cancel Checkout Successful");	
-					            	}else{
-					            		System.out.println("Cancel CHeckout has no checked out document for:"+nodeRef);
-					            	}
-				            	}
-			            	}
+							}		            	
 		            	}
 					}else{				
 						String status = publish(target, nodesInTree);
@@ -148,7 +149,10 @@ public class PublishContent extends JBPMSpringActionHandler{
 						        }
 						        	 return "";
 						        }
-						    }, AuthenticationUtil.getSystemUserName());							
+						    }, AuthenticationUtil.getSystemUserName());
+							
+							//Refresh Kaptest Environments
+							refreshKaptestEnv(strTarget);
 						}
 					}
 				}			
@@ -157,6 +161,7 @@ public class PublishContent extends JBPMSpringActionHandler{
 			ex.printStackTrace();		
 		}
 	}
+	
 	public String publish(String target, Set<NodeRef> nodesInTree) throws Exception{		
 		final TransferDefinition transferDef = new TransferDefinition();
 		final String strTarget = target;
@@ -177,16 +182,79 @@ public class PublishContent extends JBPMSpringActionHandler{
 		return status;
 	}
 	
-	public void applyAspectsAfterPublish(String target, Set<NodeRef> nodesInTree,String wfProcessId){	
-		Properties props = new Properties();
-		try{
-			props.load(this.getClass().getResourceAsStream("/com/kaptest/workflow/action/kaptest.properties"));	
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
+	public String cancelCheckoutNodes(Set<NodeRef> nodesInTree){
+		FileFolderService fileFolderService = serviceRegistry.getFileFolderService();
 		int intSetSize = nodesInTree.size();
-		FileFolderService fileFolderService = serviceRegistry.getFileFolderService();		
-		if(target.equalsIgnoreCase("FSTR_PROD")){			
+		System.out.println("Into Cancel Checkout Documents");
+		String message = "";
+		boolean isError = false;
+		for(NodeRef nodeRef : nodesInTree){       	
+        	if(intSetSize < 51){
+            	if(!fileFolderService.getFileInfo(nodeRef).isFolder()){          	
+	            	NodeRef workingCopy = checkOutCheckInService.getWorkingCopy(nodeRef);
+	            	if(workingCopy!=null){
+		            	checkOutCheckInService.cancelCheckout(workingCopy);			            	
+	            	}else{
+	            		isError = true;
+	            		message = message + "Cancel CHeckout has no checked out document for:"+nodeRef+"\n";
+	            	}
+            	}
+        	}else{
+        		message = "No cancel checkout for set of more than 50";
+        	}
+        	if(!isError){
+        		message = "All Documents executed cancel checkout successfully"; 
+        	}        	
+    	}
+		return message;
+	}
+	
+	public void refreshKaptestEnv(String target){
+		Properties props = new Properties();			
+		HttpClient httpclient1 = null;		
+		if(target.equalsIgnoreCase("FSTR_QA")){		
+			try {
+				httpclient1 = new DefaultHttpClient();
+				props.load(this.getClass().getResourceAsStream("/com/kaptest/workflow/action/kaptest.properties"));
+				String QAURL = props.getProperty("kaptest_qa_refesh_url");				
+				HttpGet httpChannel = new HttpGet(QAURL.trim());
+				HttpResponse responseChannels = httpclient1.execute(httpChannel);			
+				System.out.println("Ticket Response:"+responseChannels.getStatusLine());
+				if(responseChannels.getStatusLine().getStatusCode() == 200){				
+					System.out.println("QA Refresh URL Successful");
+				}else{				
+					System.out.println("QA Refresh URL failed");
+				}
+			}catch(Exception e){
+				e.printStackTrace();			
+			}
+		}
+		if(target.equalsIgnoreCase("FSTR_PROD")){		
+			try {
+				props.load(this.getClass().getResourceAsStream("/com/kaptest/workflow/action/kaptest.properties"));			
+				for(int i=1;i<4;i++){
+					httpclient1 = new DefaultHttpClient();
+					String propkey = "kaptest_prod_refesh_url"+i;
+					String PRODURL = props.getProperty(propkey.trim());
+					System.out.println("URL to refresh is:"+PRODURL);
+					HttpGet httpChannel = new HttpGet(PRODURL.trim());
+					HttpResponse responseChannels = httpclient1.execute(httpChannel);			
+					System.out.println("Ticket Response:"+responseChannels.getStatusLine());
+					if(responseChannels.getStatusLine().getStatusCode() == 200){				
+						System.out.println("Prod Refresh URL Successful");
+					}else{				
+						System.out.println("Prod Refresh URL failed:"+PRODURL);
+					}					
+				}
+			}catch(Exception e){
+				e.printStackTrace();			
+			}
+		}
+	}
+	public void applyAspectsAfterPublish(String target, Set<NodeRef> nodesInTree,String wfProcessId){		
+		if(target.equalsIgnoreCase("FSTR_PROD")){
+			String message = cancelCheckoutNodes(nodesInTree);
+			System.out.println("Status message from cancelCheckout:"+message);
 			for(NodeRef nodeRef : nodesInTree){				
 				//DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");				
 				Date date = new Date();	
@@ -209,40 +277,11 @@ public class PublishContent extends JBPMSpringActionHandler{
 					propMap.put(KaptestModel.PROPERTY_KTP_WORKFLOW_ID, wfProcessId);					
 					propMap.put(KaptestModel.PROPERTY_KTP_PUBLISHED_DATE, cal);
 					nodeService.addProperties(nodeRef, propMap);
-				}
-            	
-            	if(intSetSize < 51){
-            		System.out.println("Cancel Checkout Documents");	            	
-	            	if(!fileFolderService.getFileInfo(nodeRef).isFolder()){          	
-		            	NodeRef workingCopy = checkOutCheckInService.getWorkingCopy(nodeRef);
-		            	if(workingCopy!=null){
-			            	checkOutCheckInService.cancelCheckout(workingCopy);
-			            	System.out.println("Cancel CHeckout Successful");	
-		            	}else{
-		            		System.out.println("Cancel CHeckout has no checked out document for:"+nodeRef);
-		            	}
-	            	}
-            	}
+				}           	
 			}
 		}else if(target.equalsIgnoreCase("FSTR_QA")){
-			//Refresh KTP Cache	
-			HttpClient httpclient1 = new DefaultHttpClient();			
-			String URL = props.getProperty("kaptest_qa_refesh_url");			
-			HttpGet httpChannel = new HttpGet(URL.trim());	
-			try {
-				HttpResponse responseChannels = httpclient1.execute(httpChannel);			
-				//System.out.println("Ticket Response:"+responseChannels.getStatusLine());
-				if(responseChannels.getStatusLine().getStatusCode() == 200){	
-					logger.debug("QA Refresh URL Successful");
-					System.out.println("QA Refresh URL Successful");
-				}else{
-					logger.debug("QA Refresh URL failed");
-					System.out.println("QA Refresh URL failed");
-				}
-			}catch(Exception e){
-				e.printStackTrace();			
-			}			
-										
+			int intSetSize = nodesInTree.size();
+			FileFolderService fileFolderService = serviceRegistry.getFileFolderService();										
 			for(NodeRef nodeRef : nodesInTree){				
 				if(nodeService.hasAspect(nodeRef, KaptestModel.ASPECT_IS_EDITED)){					
 					nodeService.removeAspect(nodeRef, KaptestModel.ASPECT_IS_EDITED);					

@@ -82,7 +82,9 @@
    
 	<task-node name="reviseQA">
 		<task name="ktpwf:revise" swimlane="initiator"></task>
-		<transition name="submit" to="submitToQA"/>		
+		<!-- 
+		<transition name="submit" to="submitToQA"/>
+		-->		
 		<transition name="abort" to="abortAfterQADeployment"/>		
 	</task-node>
 	
