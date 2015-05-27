@@ -34,14 +34,6 @@
 		<delete dir="${build.dir}" />
 		<delete dir="${bin.dir}" />		
 	</target>
-
-	<target name="clean-tomcat" description="Removes deployed extension directory, lib/someco*.jar, and someco/" >
-		<delete dir="${alfresco.web.dir}/WEB-INF/classes/alfresco/extension" />
-		<delete dir="${alfresco.web.dir}/WEB-INF/classes/alfresco/module" />
-		<delete dir="${alfresco.web.dir}/jsp/extension" />
-		<delete dir="${alfresco.web.dir}/hesser" />
-		<delete file="${alfresco.web.dir}/WEB-INF/lib/hesser-alfresco.jar" />
-	</target>
 	
 	<target name="copy-libs" description="Copy all jar files to tomcat" >
 	  <copy todir="${tomcat.lib.dir}">
@@ -73,9 +65,19 @@
 	<target name="deploy-dev" depends="config-dev, package-extension, package-web-extension" description="Unzips the ${package.file.zip} into ${alfresco.web.dir}">
 		<unzip src="${package.file.zip}" dest="${alfresco.web.dir}" />
 		<unzip src="${web-extension.file.zip}" dest="${alfresco.webextension.dir}" />
-	</target>	
+	</target>
 	
-	<target name="config-dev"></target>
+	<target name="deploy-prod" depends="config-prod, package-extension, package-web-extension" description="Unzips the ${package.file.zip} into ${alfresco.web.dir}">
+		<unzip src="${package.file.zip}" dest="${alfresco.web.dir}" />
+		<unzip src="${web-extension.file.zip}" dest="${alfresco.webextension.dir}" />
+	</target>
+	
+	<target name="config-dev">
+		<copy file="${config.dir}/kaptest-qa.properties" tofile="${source.dir}/com/kaptest/workflow/action/kaptest.properties" overwrite="true" />
+	</target>
+	<target name="config-prod">
+		<copy file="${config.dir}/kaptest-prod.properties" tofile="${source.dir}/com/kaptest/workflow/action/kaptest.properties" overwrite="true" />
+	</target>
 	
 	<target name="zip-project" depends="setup" description="Zips the entire Eclipse project as-is into ${project.file.zip}">
 		<delete file="${project.file.zip}" />
